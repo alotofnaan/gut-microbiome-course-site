@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bacteria Genus Overview</title>
+<meta name="description" content="An interactive, browser-based tour of the gut microbiome's major bacterial genera, grouped by phylum.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='9' cy='9' r='6' fill='%23C93F63'/%3E%3Ccircle cx='23' cy='9' r='6' fill='%23DB9A34'/%3E%3Ccircle cx='9' cy='23' r='6' fill='%235B2A63'/%3E%3Ccircle cx='23' cy='23' r='6' fill='%233E7C74'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slide: #F5F1F7;
+    --panel: #FFFDFE;
+    --ink: #1A1A1D;
+    --ink-soft: #57565E;
+    --dust: #8B8A92;
+    --rose: #C93F63;
+    --amber: #DB9A34;
+    --violet: #5B2A63;
+    --teal: #3E7C74;
+    --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --slide: #17111C;
+      --panel: #1E1623;
+      --ink: #EBEAEE;
+      --ink-soft: #B0AEB6;
+      --dust: #8C8A93;
+      --rose: #E97393;
+      --amber: #EFB65E;
+      --violet: #C08FD0;
+      --teal: #6FB2A7;
+      --brick: #D97D51;
+      --hairline: rgba(235, 234, 238, 0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    --slide: #17111C; --panel: #1E1623; --ink: #EBEAEE; --ink-soft: #B0AEB6; --dust: #8C8A93;
+    --rose: #E97393; --amber: #EFB65E; --violet: #C08FD0; --teal: #6FB2A7; --brick: #D97D51;
+    --hairline: rgba(235, 234, 238, 0.16);
+  }
+  :root[data-theme="light"] {
+    --slide: #F5F1F7; --panel: #FFFDFE; --ink: #1A1A1D; --ink-soft: #57565E; --dust: #8B8A92;
+    --rose: #C93F63; --amber: #DB9A34; --violet: #5B2A63; --teal: #3E7C74; --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--slide);
+    color: var(--ink);
+    font-family: "Work Sans", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+
+  header.hero { padding: 88px 0 40px; }
+  h1.display {
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.5rem, 6.5vw, 3.8rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 16px 0 22px;
+    color: var(--ink);
+  }
+  h1.display .line1 { display: block; }
+  h1.display .line2 { display: block; }
+  p.lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 56ch;
+    margin: 0 0 32px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 2px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cta:hover { background: var(--ink); color: var(--slide); }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .cta .arrow { transition: transform 0.15s ease; display: inline-block; }
+  .cta:hover .arrow { transform: translateX(3px); }
+
+  /* --- hero: phylum grid figure --- */
+  .specimen { margin: 48px 0 8px; }
+  .fig-panel {
+    border: 1px solid var(--hairline);
+    background: var(--panel);
+    padding: 22px 24px 24px;
+    border-radius: 2px;
+  }
+  .fig-label {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 16px;
+  }
+  .phylum-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+  }
+  @media (max-width: 560px) {
+    .phylum-grid { grid-template-columns: 1fr; }
+  }
+  .phylum-cell {
+    background: var(--slide);
+    padding: 14px 16px;
+    transition: background 0.15s ease;
+  }
+  .phylum-cell:hover { background: var(--panel); }
+  .phylum-swatch { width: 16px; height: 4px; margin-bottom: 8px; }
+  .phylum-name {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.92rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .phylum-genera {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .phylum-nb {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--dust);
+    margin-top: 6px;
+    display: block;
+  }
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    max-width: 62ch;
+  }
+
+  section.log { padding: 56px 0 24px; }
+  h2.section-title {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin: 0 0 18px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 14px;
+  }
+  a.row {
+    display: grid;
+    grid-template-columns: 52px 1fr 22px;
+    gap: 16px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--hairline);
+    transition: background 0.15s ease, padding-left 0.15s ease;
+  }
+  a.row:hover { background: var(--panel); padding-left: 8px; }
+  a.row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .row-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .row-title { font-family: "Oswald", sans-serif; font-weight: 500; font-size: 1.05rem; color: var(--ink); }
+  .row-desc { color: var(--ink-soft); font-size: 0.92rem; margin-top: 3px; font-weight: 400; font-family: "Work Sans", sans-serif; }
+  .row-arrow { color: var(--dust); transition: transform 0.15s ease, color 0.15s ease; }
+  a.row:hover .row-arrow { color: var(--ink); transform: translateX(3px); }
+
+  .callout {
+    background: var(--panel);
+    border-left: 3px solid var(--ink);
+    padding: 20px 24px;
+    margin: 40px 0;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .callout strong { color: var(--ink); }
+  .callout code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--hairline);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+
+  footer {
+    padding: 40px 0 80px;
+    color: var(--dust);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--hairline);
+    margin-top: 24px;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">A self-guided lab notebook &middot; runs in your browser</p>
+    <h1 class="display"><span class="line1">Bacteria genus</span><span class="line2">overview.</span></h1>
+    <p class="lede">
+      A twelve-module tour of the gut microbiome's major bacterial genera,
+      grouped by phylum — real biology, real research citations, and real
+      numbers pulled directly from the datasets used in this site's other
+      two courses. Covers naming and taxonomy, diet-driven genera,
+      butyrate producers, opportunists, a mucin specialist, and a
+      cross-dataset comparison, closing on exactly where genus-level
+      resolution stops being enough. Runs natively in-browser; no local
+      installation required.
+    </p>
+    <a class="cta" href="../app/notebooks/index.html?path=bacteria-genus-overview/00_welcome.ipynb">
+      Start the course <span class="arrow">&rarr;</span>
+    </a>
+
+    <figure class="specimen">
+      <div class="fig-panel">
+        <div class="fig-label">Fig. 1 &mdash; Phyla covered in this course</div>
+        <div class="phylum-grid">
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--rose)"></div>
+            <div class="phylum-name">Bacteroidetes</div>
+            <div class="phylum-genera">Bacteroides, Prevotella, Alistipes, Parabacteroides</div>
+            <span class="phylum-nb">№ 02&ndash;03</span>
+          </div>
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--violet)"></div>
+            <div class="phylum-name">Firmicutes</div>
+            <div class="phylum-genera">Faecalibacterium, Roseburia, Eubacterium, Ruminococcus, Blautia, Dorea, Lachnospira, Oscillospira</div>
+            <span class="phylum-nb">№ 04&ndash;05</span>
+          </div>
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--teal)"></div>
+            <div class="phylum-name">Actinobacteria</div>
+            <div class="phylum-genera">Bifidobacterium</div>
+            <span class="phylum-nb">№ 06</span>
+          </div>
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--brick)"></div>
+            <div class="phylum-name">Proteobacteria</div>
+            <div class="phylum-genera">Escherichia, Klebsiella</div>
+            <span class="phylum-nb">№ 07</span>
+          </div>
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--amber)"></div>
+            <div class="phylum-name">Verrucomicrobia</div>
+            <div class="phylum-genera">Akkermansia</div>
+            <span class="phylum-nb">№ 08</span>
+          </div>
+          <div class="phylum-cell">
+            <div class="phylum-swatch" style="background:var(--dust)"></div>
+            <div class="phylum-name">Fusobacteria &amp; others</div>
+            <div class="phylum-genera">Fusobacterium, Veillonella, Dialister</div>
+            <span class="phylum-nb">№ 09</span>
+          </div>
+        </div>
+        <figcaption>Six phyla, roughly twenty genera — most already sitting unexplained as data columns in this site's other two courses. Notebook 10 pulls all three datasets together; Notebook 11 covers what genus-level data can't tell you.</figcaption>
+      </div>
+    </figure>
+  </header>
+
+  <section class="log">
+    <h2 class="section-title">Specimen log — course order</h2>
+
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/00_welcome.ipynb">
+      <span class="row-num">№ 00</span>
+      <span><span class="row-title">Welcome</span><div class="row-desc">How this course works, and why it reuses data from the other two</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/01_what_is_a_genus_anyway.ipynb">
+      <span class="row-num">№ 01</span>
+      <span><span class="row-title">What Is a Genus, Anyway?</span><div class="row-desc">Taxonomic ranks, naming, and the mystery of the "[Ruminococcus]" bracket</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/02_bacteroidetes_i.ipynb">
+      <span class="row-num">№ 02</span>
+      <span><span class="row-title">Bacteroidetes I</span><div class="row-desc"><em>Bacteroides</em> &amp; <em>Prevotella</em> — the diet-driven pair, plus enterotypes</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/03_bacteroidetes_ii.ipynb">
+      <span class="row-num">№ 03</span>
+      <span><span class="row-title">Bacteroidetes II</span><div class="row-desc"><em>Alistipes</em> &amp; <em>Parabacteroides</em> — not every genus splits by diet</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/04_firmicutes_i_butyrate_producers.ipynb">
+      <span class="row-num">№ 04</span>
+      <span><span class="row-title">Firmicutes I</span><div class="row-desc">The butyrate producers: <em>Faecalibacterium</em>, <em>Roseburia</em>, <em>Eubacterium</em></div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/05_firmicutes_ii.ipynb">
+      <span class="row-num">№ 05</span>
+      <span><span class="row-title">Firmicutes II</span><div class="row-desc"><em>Ruminococcus</em>, <em>Blautia</em>, <em>Dorea</em>, <em>Lachnospira</em>, <em>Oscillospira</em></div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/06_actinobacteria_bifidobacterium.ipynb">
+      <span class="row-num">№ 06</span>
+      <span><span class="row-title">Actinobacteria</span><div class="row-desc"><em>Bifidobacterium</em> — one of two genera in all three site datasets</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/07_proteobacteria.ipynb">
+      <span class="row-num">№ 07</span>
+      <span><span class="row-title">Proteobacteria</span><div class="row-desc"><em>Escherichia</em> &amp; <em>Klebsiella</em> — the opportunists</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/08_verrucomicrobia_akkermansia.ipynb">
+      <span class="row-num">№ 08</span>
+      <span><span class="row-title">Verrucomicrobia</span><div class="row-desc"><em>Akkermansia</em> — a mucin specialist and a metabolic-health research darling</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/09_fusobacteria_and_friends.ipynb">
+      <span class="row-num">№ 09</span>
+      <span><span class="row-title">Fusobacteria &amp; Friends</span><div class="row-desc"><em>Fusobacterium</em>, <em>Veillonella</em>, <em>Dialister</em></div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/10_comparing_genus_profiles.ipynb">
+      <span class="row-num">№ 10</span>
+      <span><span class="row-title">Comparing Genus Profiles</span><div class="row-desc">All three site datasets, loaded and compared side by side</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bacteria-genus-overview/11_genus_isnt_the_whole_story.ipynb">
+      <span class="row-num">№ 11</span>
+      <span><span class="row-title">Genus Isn't the Whole Story</span><div class="row-desc">The limits of genus-level resolution, and what's next</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <div class="callout">
+    <strong>Nothing to install.</strong> Every notebook here uses only
+    <code>pandas</code> and <code>matplotlib</code>, and reads CSVs
+    directly from the other two courses on this site — no setup cells,
+    no new datasets, no waiting on installs.
+  </div>
+
+  <footer>
+    Reuses datasets from <a href="../gut-microbiome-under-glass/">The Gut Microbiome, Under Glass</a>
+    and <a href="../bioinformatics-of-gut-health/">Bioinformatics of Gut Health</a>.
+    Built with <a href="https://jupyterlite.readthedocs.io/">JupyterLite</a>.
+  </footer>
+
+</div>
+</body>
+</html>
