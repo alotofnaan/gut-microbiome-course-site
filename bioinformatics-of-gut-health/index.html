@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bioinformatics of Gut Health</title>
+<meta name="description" content="An interactive, browser-based course on the pipeline behind gut-health tools like GMWI2 — from raw sequence reads to a trained classifier.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='14' width='5' height='5' fill='%239C8CA8'/%3E%3Crect x='9' y='14' width='5' height='5' fill='%23DB9A34'/%3E%3Crect x='16' y='14' width='5' height='5' fill='%23C93F63'/%3E%3Crect x='23' y='14' width='5' height='5' fill='%235B2A63'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slide: #F5F1F7;
+    --panel: #FFFDFE;
+    --ink: #1A1A1D;
+    --ink-soft: #57565E;
+    --dust: #8B8A92;
+    --rose: #C93F63;
+    --amber: #DB9A34;
+    --violet: #5B2A63;
+    --teal: #3E7C74;
+    --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --slide: #17111C;
+      --panel: #1E1623;
+      --ink: #EBEAEE;
+      --ink-soft: #B0AEB6;
+      --dust: #8C8A93;
+      --rose: #E97393;
+      --amber: #EFB65E;
+      --violet: #C08FD0;
+      --teal: #6FB2A7;
+      --brick: #D97D51;
+      --hairline: rgba(235, 234, 238, 0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    --slide: #17111C; --panel: #1E1623; --ink: #EBEAEE; --ink-soft: #B0AEB6; --dust: #8C8A93;
+    --rose: #E97393; --amber: #EFB65E; --violet: #C08FD0; --teal: #6FB2A7; --brick: #D97D51;
+    --hairline: rgba(235, 234, 238, 0.16);
+  }
+  :root[data-theme="light"] {
+    --slide: #F5F1F7; --panel: #FFFDFE; --ink: #1A1A1D; --ink-soft: #57565E; --dust: #8B8A92;
+    --rose: #C93F63; --amber: #DB9A34; --violet: #5B2A63; --teal: #3E7C74; --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--slide);
+    color: var(--ink);
+    font-family: "Work Sans", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+
+  header.hero { padding: 88px 0 40px; }
+  h1.display {
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.5rem, 6.5vw, 3.8rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 16px 0 22px;
+    color: var(--ink);
+  }
+  h1.display .line1 { display: block; }
+  h1.display .line2 { display: block; }
+  p.lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 54ch;
+    margin: 0 0 32px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 2px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cta:hover { background: var(--ink); color: var(--slide); }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .cta .arrow { transition: transform 0.15s ease; display: inline-block; }
+  .cta:hover .arrow { transform: translateX(3px); }
+
+  /* --- hero: pipeline figure panel --- */
+  .specimen { margin: 48px 0 8px; }
+  .fig-panel {
+    border: 1px solid var(--hairline);
+    background: var(--panel);
+    padding: 22px 24px 24px;
+    border-radius: 2px;
+  }
+  .fig-label {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 18px;
+  }
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .stage {
+    position: relative;
+    flex: 1 0 auto;
+    min-width: 108px;
+    border: 1px solid var(--hairline);
+    background: var(--slide);
+    padding: 12px 10px;
+    text-align: center;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  }
+  .stage + .stage { border-left: none; }
+  .stage:hover { background: var(--panel); border-color: var(--ink); z-index: 2; transform: translateY(-2px); }
+  .stage-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--dust);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stage-name {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .stage-swatch {
+    width: 18px; height: 4px; margin: 8px auto 0;
+  }
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    max-width: 62ch;
+  }
+
+  section.log { padding: 56px 0 24px; }
+  h2.section-title {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin: 0 0 18px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 14px;
+  }
+  a.row {
+    display: grid;
+    grid-template-columns: 52px 1fr 22px;
+    gap: 16px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--hairline);
+    transition: background 0.15s ease, padding-left 0.15s ease;
+  }
+  a.row:hover { background: var(--panel); padding-left: 8px; }
+  a.row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .row-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .row-title { font-family: "Oswald", sans-serif; font-weight: 500; font-size: 1.05rem; color: var(--ink); }
+  .row-desc { color: var(--ink-soft); font-size: 0.92rem; margin-top: 3px; font-weight: 400; font-family: "Work Sans", sans-serif; }
+  .row-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .row-arrow { color: var(--dust); transition: transform 0.15s ease, color 0.15s ease; }
+  a.row:hover .row-arrow { color: var(--ink); transform: translateX(3px); }
+
+  .callout {
+    background: var(--panel);
+    border-left: 3px solid var(--ink);
+    padding: 20px 24px;
+    margin: 40px 0;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .callout strong { color: var(--ink); }
+  .callout code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--hairline);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+
+  footer {
+    padding: 40px 0 80px;
+    color: var(--dust);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--hairline);
+    margin-top: 24px;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">A self-guided lab notebook &middot; runs in your browser</p>
+    <h1 class="display"><span class="line1">Bioinformatics</span><span class="line2">of gut health.</span></h1>
+    <p class="lede">
+      An eight-module course on the computational pipeline behind gut-health
+      tools like GMWI2 — from a raw sequencer read to a trained,
+      cross-validated classifier. Parse real sequence data with Biopython,
+      hand-build a presence/absence matrix, train your own Lasso logistic
+      regression with scikit-learn, and see exactly how a 2024 published
+      tool (Mayo Clinic's Gut Microbiome Wellness Index 2) does the same
+      thing at real scale. Runs natively in-browser; no local installation
+      required.
+    </p>
+    <a class="cta" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/00_welcome.ipynb">
+      Start the course <span class="arrow">&rarr;</span>
+    </a>
+
+    <figure class="specimen">
+      <div class="fig-panel">
+        <div class="fig-label">Fig. 1 &mdash; The pipeline this course builds, stage by stage</div>
+        <div class="pipeline">
+          <div class="stage"><span class="stage-num">01</span><span class="stage-name">Raw reads</span><div class="stage-swatch" style="background:var(--dust)"></div></div>
+          <div class="stage"><span class="stage-num">02</span><span class="stage-name">QC + taxonomy</span><div class="stage-swatch" style="background:var(--amber)"></div></div>
+          <div class="stage"><span class="stage-num">03</span><span class="stage-name">Presence /<br>absence</span><div class="stage-swatch" style="background:var(--rose)"></div></div>
+          <div class="stage"><span class="stage-num">04</span><span class="stage-name">Health-species score</span><div class="stage-swatch" style="background:var(--violet)"></div></div>
+          <div class="stage"><span class="stage-num">05</span><span class="stage-name">Trained classifier</span><div class="stage-swatch" style="background:var(--teal)"></div></div>
+          <div class="stage"><span class="stage-num">06</span><span class="stage-name">GMWI2,<br>for real</span><div class="stage-swatch" style="background:var(--brick)"></div></div>
+        </div>
+        <figcaption>Each stage above is one or more notebooks in this course — by the time you reach Notebook 06, you've already hand-built every step that a real run of GMWI2 performs automatically.</figcaption>
+      </div>
+    </figure>
+  </header>
+
+  <section class="log">
+    <h2 class="section-title">Specimen log — course order</h2>
+
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/00_welcome.ipynb">
+      <span class="row-num">№ 00</span>
+      <span><span class="row-title">Welcome</span><div class="row-desc">How this course works, and how it differs from the biology course</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/01_reading_raw_sequence_data.ipynb">
+      <span class="row-num">№ 01</span>
+      <span><span class="row-title">Reading Raw Sequence Data</span><div class="row-desc">FASTA/FASTQ, Biopython, what a sequencing read actually is</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/02_from_reads_to_taxonomy_table.ipynb">
+      <span class="row-num">№ 02</span>
+      <span><span class="row-title">From Reads to a Taxonomy Table</span><div class="row-desc">QC, MetaPhlAn3, why GMWI2 needs shotgun data, not 16S</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/03_abundance_to_presence_absence.ipynb">
+      <span class="row-num">№ 03</span>
+      <span><span class="row-title">From Abundance to Presence/Absence</span><div class="row-desc">Binarizing a species table, by hand, on real-shaped synthetic data</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/04_health_vs_disease_species.ipynb">
+      <span class="row-num">№ 04</span>
+      <span><span class="row-title">Health- vs. Disease-Associated Species</span><div class="row-desc">A simplified log-ratio health score, hand-built</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/05_training_a_health_classifier.ipynb">
+      <span class="row-num">№ 05</span>
+      <span><span class="row-title">Training a Health Classifier</span><div class="row-desc">Lasso logistic regression, cross-validation, balanced accuracy, with scikit-learn</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/06_running_gmwi2_for_real.ipynb">
+      <span class="row-num">№ 06</span>
+      <span><span class="row-title">Running GMWI2 for Real</span><div class="row-desc">The real CLI, real output files, real 2024 Nature Communications citation</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=bioinformatics-of-gut-health/07_limits_critiques_and_whats_next.ipynb">
+      <span class="row-num">№ 07</span>
+      <span><span class="row-title">Limits, Critiques, and What's Next</span><div class="row-desc">What GMWI2 can't tell you, and where health-index research is headed</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <div class="callout">
+    <strong>Nothing to install.</strong> Every hands-on notebook here uses
+    only <code>pandas</code>, <code>numpy</code>, <code>scikit-learn</code>,
+    and <code>Biopython</code> — all bundled in the in-browser Python
+    runtime already. No setup cells, no waiting on installs.
+  </div>
+
+  <footer>
+    GMWI2 in Notebooks 02, 06–07: Chang, Gupta et al. 2024, <em>Nature
+    Communications</em>. Teaching dataset in Notebooks 03–05 is synthetic
+    and illustrative, not real patient data. Built with
+    <a href="https://jupyterlite.readthedocs.io/">JupyterLite</a>.
+  </footer>
+
+</div>
+</body>
+</html>
