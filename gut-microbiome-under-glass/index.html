@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gut Microbiome, Under Glass</title>
+<meta name="description" content="An interactive, browser-based course in gut microbiome biology and bioinformatics.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='19' width='6' height='10' fill='%239C8CA8'/%3E%3Crect x='10' y='13' width='6' height='16' fill='%23C93F63'/%3E%3Crect x='17' y='8' width='6' height='21' fill='%23DB9A34'/%3E%3Crect x='24' y='4' width='5' height='25' fill='%235B2A63'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slide: #F5F1F7;
+    --panel: #FFFDFE;
+    --ink: #1A1A1D;
+    --ink-soft: #57565E;
+    --dust: #8B8A92;
+    --rose: #C93F63;
+    --amber: #DB9A34;
+    --violet: #5B2A63;
+    --teal: #3E7C74;
+    --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --slide: #17111C;
+      --panel: #1E1623;
+      --ink: #EBEAEE;
+      --ink-soft: #B0AEB6;
+      --dust: #8C8A93;
+      --rose: #E97393;
+      --amber: #EFB65E;
+      --violet: #C08FD0;
+      --teal: #6FB2A7;
+      --brick: #D97D51;
+      --hairline: rgba(235, 234, 238, 0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    --slide: #17111C; --panel: #1E1623; --ink: #EBEAEE; --ink-soft: #B0AEB6; --dust: #8C8A93;
+    --rose: #E97393; --amber: #EFB65E; --violet: #C08FD0; --teal: #6FB2A7; --brick: #D97D51;
+    --hairline: rgba(235, 234, 238, 0.16);
+  }
+  :root[data-theme="light"] {
+    --slide: #F5F1F7; --panel: #FFFDFE; --ink: #1A1A1D; --ink-soft: #57565E; --dust: #8B8A92;
+    --rose: #C93F63; --amber: #DB9A34; --violet: #5B2A63; --teal: #3E7C74; --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--slide);
+    color: var(--ink);
+    font-family: "Work Sans", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+
+  header.hero { padding: 88px 0 40px; }
+  h1.display {
+    font-family: "Oswald", sans-serif;
+    font-size: clamp(2.5rem, 6.5vw, 3.8rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 16px 0 22px;
+    color: var(--ink);
+  }
+  h1.display .line1 { display: block; font-weight: 700; }
+  h1.display .line2 { display: block; font-weight: 300; }
+  p.lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 54ch;
+    margin: 0 0 32px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 2px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cta:hover { background: var(--ink); color: var(--slide); }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .cta .arrow { transition: transform 0.15s ease; display: inline-block; }
+  .cta:hover .arrow { transform: translateX(3px); }
+
+  /* --- hero: sample-composition figure panel --- */
+  .specimen { margin: 48px 0 8px; }
+  .fig-panel {
+    border: 1px solid var(--hairline);
+    background: var(--panel);
+    padding: 22px 24px 20px;
+    border-radius: 2px;
+  }
+  .fig-label {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 16px;
+  }
+  .ruler {
+    display: flex;
+    justify-content: space-between;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--dust);
+    margin-bottom: 4px;
+  }
+  .bar {
+    display: flex;
+    width: 100%;
+    height: 46px;
+    border: 1px solid var(--hairline);
+    overflow: visible;
+    background: var(--slide);
+  }
+  .bar-segment {
+    position: relative;
+    height: 100%;
+    border-right: 1px solid var(--panel);
+    opacity: 0.92;
+    transition: opacity 0.15s ease, filter 0.15s ease;
+  }
+  .bar-segment:last-child { border-right: none; }
+  .bar-segment::after {
+    content: attr(data-pct);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    background: var(--ink);
+    color: var(--slide);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    padding: 3px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 3;
+  }
+  .bar-segment:hover::after { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+
+  .legend { font-size: 0.9rem; margin-top: 18px; }
+  .legend-row {
+    display: grid;
+    grid-template-columns: 12px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--hairline);
+    border-radius: 2px;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+  .legend-row:last-child { border-bottom: none; }
+  .swatch { width: 11px; height: 11px; border-radius: 2px; align-self: center; }
+  .legend-name { color: var(--ink); font-weight: 500; }
+  .legend-pct { font-family: "IBM Plex Mono", monospace; color: var(--ink-soft); font-size: 0.82rem; }
+
+  /* hover linking between bar segments and legend rows, no JS */
+  .fig-panel:has(.legend-row:hover) .bar-segment { opacity: 0.25; filter: saturate(0.3); }
+  .fig-panel:has(.bar-segment:hover) .legend-row { opacity: 0.45; }
+  .fig-panel:has(.legend-row[data-genus="other"]:hover) .bar-segment[data-genus="other"],
+  .fig-panel:has(.bar-segment[data-genus="other"]:hover) .bar-segment[data-genus="other"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="other"]:hover) .legend-row[data-genus="other"],
+  .fig-panel:has(.legend-row[data-genus="other"]:hover) .legend-row[data-genus="other"] { opacity: 1; background: var(--slide); }
+
+  .fig-panel:has(.legend-row[data-genus="bacteroides"]:hover) .bar-segment[data-genus="bacteroides"],
+  .fig-panel:has(.bar-segment[data-genus="bacteroides"]:hover) .bar-segment[data-genus="bacteroides"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="bacteroides"]:hover) .legend-row[data-genus="bacteroides"],
+  .fig-panel:has(.legend-row[data-genus="bacteroides"]:hover) .legend-row[data-genus="bacteroides"] { opacity: 1; background: var(--slide); }
+
+  .fig-panel:has(.legend-row[data-genus="prevotella"]:hover) .bar-segment[data-genus="prevotella"],
+  .fig-panel:has(.bar-segment[data-genus="prevotella"]:hover) .bar-segment[data-genus="prevotella"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="prevotella"]:hover) .legend-row[data-genus="prevotella"],
+  .fig-panel:has(.legend-row[data-genus="prevotella"]:hover) .legend-row[data-genus="prevotella"] { opacity: 1; background: var(--slide); }
+
+  .fig-panel:has(.legend-row[data-genus="faecalibacterium"]:hover) .bar-segment[data-genus="faecalibacterium"],
+  .fig-panel:has(.bar-segment[data-genus="faecalibacterium"]:hover) .bar-segment[data-genus="faecalibacterium"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="faecalibacterium"]:hover) .legend-row[data-genus="faecalibacterium"],
+  .fig-panel:has(.legend-row[data-genus="faecalibacterium"]:hover) .legend-row[data-genus="faecalibacterium"] { opacity: 1; background: var(--slide); }
+
+  .fig-panel:has(.legend-row[data-genus="bifidobacterium"]:hover) .bar-segment[data-genus="bifidobacterium"],
+  .fig-panel:has(.bar-segment[data-genus="bifidobacterium"]:hover) .bar-segment[data-genus="bifidobacterium"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="bifidobacterium"]:hover) .legend-row[data-genus="bifidobacterium"],
+  .fig-panel:has(.legend-row[data-genus="bifidobacterium"]:hover) .legend-row[data-genus="bifidobacterium"] { opacity: 1; background: var(--slide); }
+
+  .fig-panel:has(.legend-row[data-genus="escherichia"]:hover) .bar-segment[data-genus="escherichia"],
+  .fig-panel:has(.bar-segment[data-genus="escherichia"]:hover) .bar-segment[data-genus="escherichia"] { opacity: 1; filter: none; outline: 2px solid var(--ink); outline-offset: -1px; z-index: 2; }
+  .fig-panel:has(.bar-segment[data-genus="escherichia"]:hover) .legend-row[data-genus="escherichia"],
+  .fig-panel:has(.legend-row[data-genus="escherichia"]:hover) .legend-row[data-genus="escherichia"] { opacity: 1; background: var(--slide); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-segment, .legend-row, .bar-segment::after { transition: none; }
+  }
+
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    max-width: 62ch;
+  }
+
+  section.log { padding: 56px 0 24px; }
+  h2.section-title {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin: 0 0 18px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 14px;
+  }
+  a.row {
+    display: grid;
+    grid-template-columns: 52px 1fr 22px;
+    gap: 16px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--hairline);
+    transition: background 0.15s ease, padding-left 0.15s ease;
+  }
+  a.row:hover { background: var(--panel); padding-left: 8px; }
+  a.row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .row-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .row-title { font-family: "Oswald", sans-serif; font-weight: 500; font-size: 1.05rem; color: var(--ink); }
+  .row-desc { color: var(--ink-soft); font-size: 0.92rem; margin-top: 3px; font-weight: 400; font-family: "Work Sans", sans-serif; }
+  .row-arrow { color: var(--dust); transition: transform 0.15s ease, color 0.15s ease; }
+  a.row:hover .row-arrow { color: var(--ink); transform: translateX(3px); }
+
+  .callout {
+    background: var(--panel);
+    border-left: 3px solid var(--ink);
+    padding: 20px 24px;
+    margin: 40px 0;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .callout strong { color: var(--ink); }
+  .callout code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--hairline);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+
+  footer {
+    padding: 40px 0 80px;
+    color: var(--dust);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--hairline);
+    margin-top: 24px;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">A self-guided lab notebook &middot; runs in your browser</p>
+    <h1 class="display"><span class="line1">The gut microbiome,</span><span class="line2">under glass.</span></h1>
+    <p class="lede">
+      A nine-module curriculum in gut microbiome bioinformatics — covering
+      microbial taxonomy, compositional data analysis, and the statistical
+      methods applied to 16S rRNA sequencing data. Replicates a published
+      cross-population study, implements alpha- and beta-diversity metrics
+      from first principles, and surveys the computational pipelines —
+      QIIME2, DADA2, GMWI2 — used to generate this kind of data in
+      practice. Runs natively in-browser via a WebAssembly Python runtime;
+      no local installation required.
+    </p>
+    <a class="cta" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/00_welcome_and_how_to_use_this_course.ipynb">
+      Start the course <span class="arrow">&rarr;</span>
+    </a>
+
+    <figure class="specimen">
+      <div class="fig-panel">
+        <div class="fig-label">Fig. 1 &mdash; Sample composition, relative abundance</div>
+        <div class="ruler"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="bar" role="img" aria-label="Stacked bar of relative abundance by genus in one real sample">
+          <div class="bar-segment" data-genus="other" data-pct="48.4%" style="width:48.4%; background:var(--dust)"></div>
+          <div class="bar-segment" data-genus="bacteroides" data-pct="23.7%" style="width:23.7%; background:var(--rose)"></div>
+          <div class="bar-segment" data-genus="prevotella" data-pct="15.1%" style="width:15.1%; background:var(--amber)"></div>
+          <div class="bar-segment" data-genus="faecalibacterium" data-pct="7.9%" style="width:7.9%; background:var(--violet)"></div>
+          <div class="bar-segment" data-genus="bifidobacterium" data-pct="3.6%" style="width:3.6%; background:var(--teal)"></div>
+          <div class="bar-segment" data-genus="escherichia" data-pct="1.3%" style="width:1.3%; background:var(--brick)"></div>
+        </div>
+        <div class="legend">
+          <div class="legend-row" data-genus="other"><span class="swatch" style="background:var(--dust)"></span><span class="legend-name">Other genera</span><span class="legend-pct">48.4%</span></div>
+          <div class="legend-row" data-genus="bacteroides"><span class="swatch" style="background:var(--rose)"></span><span class="legend-name">Bacteroides</span><span class="legend-pct">23.7%</span></div>
+          <div class="legend-row" data-genus="prevotella"><span class="swatch" style="background:var(--amber)"></span><span class="legend-name">Prevotella</span><span class="legend-pct">15.1%</span></div>
+          <div class="legend-row" data-genus="faecalibacterium"><span class="swatch" style="background:var(--violet)"></span><span class="legend-name">Faecalibacterium</span><span class="legend-pct">7.9%</span></div>
+          <div class="legend-row" data-genus="bifidobacterium"><span class="swatch" style="background:var(--teal)"></span><span class="legend-name">Bifidobacterium</span><span class="legend-pct">3.6%</span></div>
+          <div class="legend-row" data-genus="escherichia"><span class="swatch" style="background:var(--brick)"></span><span class="legend-name">Escherichia</span><span class="legend-pct">1.3%</span></div>
+        </div>
+        <figcaption>Relative abundance of six genera in one real sample (S03) from this course's teaching dataset. Notebook 02 reconstructs this exact chart; Notebook 01 covers what each genus does.</figcaption>
+      </div>
+    </figure>
+  </header>
+
+  <section class="log">
+    <h2 class="section-title">Specimen log — course order</h2>
+
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/00_welcome_and_how_to_use_this_course.ipynb">
+      <span class="row-num">№ 00</span>
+      <span><span class="row-title">Welcome</span><div class="row-desc">How this course works, and how to run a cell</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/01_gut_microbiome_biology_primer.ipynb">
+      <span class="row-num">№ 01</span>
+      <span><span class="row-title">Gut Microbiome Biology Primer</span><div class="row-desc">Phyla, genera, the gut-brain axis, and what these CSVs actually measure</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/02_pandas_and_plotting_basics.ipynb">
+      <span class="row-num">№ 02</span>
+      <span><span class="row-title">Pandas &amp; Plotting Basics</span><div class="row-desc">Load data, explore it, make your first boxplot</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/03_pvalues_and_false_positives.ipynb">
+      <span class="row-num">№ 03</span>
+      <span><span class="row-title">P-values &amp; False Positives</span><div class="row-desc">What a p-value actually means — and how it can mislead you</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/04_multiple_testing_correction.ipynb">
+      <span class="row-num">№ 04</span>
+      <span><span class="row-title">Multiple-Testing Correction</span><div class="row-desc">Why testing hundreds of bacteria at once needs a stricter bar</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/05_real_usa_malawi_diet_study.ipynb">
+      <span class="row-num">№ 05</span>
+      <span><span class="row-title">Real USA–Malawi Diet Study</span><div class="row-desc">A published dataset, and one of the field's most reproducible findings</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/06_diversity_metrics_by_hand.ipynb">
+      <span class="row-num">№ 06</span>
+      <span><span class="row-title">Diversity Metrics, By Hand</span><div class="row-desc">Shannon, Simpson, and Bray-Curtis, built yourself with numpy</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/07_bioinformatics_tools_walkthrough.ipynb">
+      <span class="row-num">№ 07</span>
+      <span><span class="row-title">Bioinformatics Tools Walkthrough</span><div class="row-desc">How QIIME2 and DADA2 turn raw DNA reads into the tables you've been using</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=gut-microbiome-under-glass/08_gmwi2_wellness_index.ipynb">
+      <span class="row-num">№ 08</span>
+      <span><span class="row-title">GMWI2 Wellness Index</span><div class="row-desc">A real 2024 Mayo Clinic tool that scores gut health from a stool sample</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <div class="callout">
+    <strong>Nothing to install.</strong> These notebooks run on Pyodide — a
+    real Python interpreter compiled to WebAssembly — entirely inside this
+    browser tab. The first load takes a few seconds while it downloads; after
+    that, every <code>import pandas</code> and every plot is genuine, live
+    code, not a recording.
+  </div>
+
+  <footer>
+    Real dataset in Notebooks 05–07: Yatsunenko et al. 2012, <em>Nature</em>
+    486:222, via knights-lab/MLRepo. GMWI2 in Notebook 08: Chang, Gupta et
+    al. 2024, <em>Nature Communications</em>. Built with
+    <a href="https://jupyterlite.readthedocs.io/">JupyterLite</a>.
+  </footer>
+
+</div>
+</body>
+</html>
