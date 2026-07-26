@@ -2,11 +2,11 @@
   "content": [
     {
       "content": null,
-      "created": "2026-07-26T00:26:16.272599Z",
+      "created": "2026-07-26T00:29:01.616819Z",
       "format": null,
       "hash": null,
       "hash_algorithm": null,
-      "last_modified": "2026-07-26T00:26:16.272599Z",
+      "last_modified": "2026-07-26T00:29:01.616819Z",
       "mimetype": null,
       "name": "gut-microbiome-under-glass",
       "path": "gut-microbiome-under-glass",
@@ -15,11 +15,11 @@
       "writable": true
     }
   ],
-  "created": "2026-07-26T00:26:16.267823Z",
+  "created": "2026-07-26T00:29:01.613702Z",
   "format": "json",
   "hash": null,
   "hash_algorithm": null,
-  "last_modified": "2026-07-26T00:26:16.267823Z",
+  "last_modified": "2026-07-26T00:29:01.613702Z",
   "mimetype": null,
   "name": "",
   "path": "",
