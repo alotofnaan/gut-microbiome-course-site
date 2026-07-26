@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Species-Level Resolution</title>
+<meta name="description" content="An interactive, browser-based course on what a bacterial species actually is, and where that resolution stops being enough.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='3' fill='%235B2A63'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%235B2A63' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%239C8CA8' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slide: #F5F1F7;
+    --panel: #FFFDFE;
+    --ink: #1A1A1D;
+    --ink-soft: #57565E;
+    --dust: #8B8A92;
+    --rose: #C93F63;
+    --amber: #DB9A34;
+    --violet: #5B2A63;
+    --teal: #3E7C74;
+    --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --slide: #17111C;
+      --panel: #1E1623;
+      --ink: #EBEAEE;
+      --ink-soft: #B0AEB6;
+      --dust: #8C8A93;
+      --rose: #E97393;
+      --amber: #EFB65E;
+      --violet: #C08FD0;
+      --teal: #6FB2A7;
+      --brick: #D97D51;
+      --hairline: rgba(235, 234, 238, 0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    --slide: #17111C; --panel: #1E1623; --ink: #EBEAEE; --ink-soft: #B0AEB6; --dust: #8C8A93;
+    --rose: #E97393; --amber: #EFB65E; --violet: #C08FD0; --teal: #6FB2A7; --brick: #D97D51;
+    --hairline: rgba(235, 234, 238, 0.16);
+  }
+  :root[data-theme="light"] {
+    --slide: #F5F1F7; --panel: #FFFDFE; --ink: #1A1A1D; --ink-soft: #57565E; --dust: #8B8A92;
+    --rose: #C93F63; --amber: #DB9A34; --violet: #5B2A63; --teal: #3E7C74; --brick: #B5502A;
+    --hairline: rgba(26, 26, 29, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--slide);
+    color: var(--ink);
+    font-family: "Work Sans", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dust);
+  }
+
+  header.hero { padding: 88px 0 40px; }
+  h1.display {
+    font-family: "Oswald", sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.5rem, 6.5vw, 3.8rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 16px 0 22px;
+    color: var(--ink);
+  }
+  h1.display .line1 { display: block; }
+  h1.display .line2 { display: block; }
+  p.lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 56ch;
+    margin: 0 0 32px;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 13px 24px;
+    border-radius: 2px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cta:hover { background: var(--ink); color: var(--slide); }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .cta .arrow { transition: transform 0.15s ease; display: inline-block; }
+  .cta:hover .arrow { transform: translateX(3px); }
+
+  /* --- hero: resolution ladder figure --- */
+  .specimen { margin: 48px 0 8px; }
+  .fig-panel {
+    border: 1px solid var(--hairline);
+    background: var(--panel);
+    padding: 22px 24px 24px;
+    border-radius: 2px;
+  }
+  .fig-label {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-bottom: 18px;
+  }
+  .ladder {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .rung {
+    flex: 1;
+    border: 1px solid var(--hairline);
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .rung.done { background: var(--slide); }
+  .rung.current { background: var(--violet); border-color: var(--violet); }
+  .rung.future { background: transparent; border-style: dashed; }
+  .rung-label {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.88rem;
+  }
+  .rung.done .rung-label, .rung.future .rung-label { color: var(--ink); }
+  .rung.current .rung-label { color: var(--slide); }
+  .rung-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 4px;
+  }
+  .rung.done .rung-tag { color: var(--dust); }
+  .rung.current .rung-tag { color: var(--slide); opacity: 0.85; }
+  .rung.future .rung-tag { color: var(--dust); }
+  .ladder-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--dust);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+  }
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    max-width: 62ch;
+  }
+
+  section.log { padding: 56px 0 24px; }
+  h2.section-title {
+    font-family: "Oswald", sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin: 0 0 18px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 14px;
+  }
+  a.row {
+    display: grid;
+    grid-template-columns: 52px 1fr 22px;
+    gap: 16px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--hairline);
+    transition: background 0.15s ease, padding-left 0.15s ease;
+  }
+  a.row:hover { background: var(--panel); padding-left: 8px; }
+  a.row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .row-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .row-title { font-family: "Oswald", sans-serif; font-weight: 500; font-size: 1.05rem; color: var(--ink); }
+  .row-desc { color: var(--ink-soft); font-size: 0.92rem; margin-top: 3px; font-weight: 400; font-family: "Work Sans", sans-serif; }
+  .row-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dust);
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .row-arrow { color: var(--dust); transition: transform 0.15s ease, color 0.15s ease; }
+  a.row:hover .row-arrow { color: var(--ink); transform: translateX(3px); }
+
+  .callout {
+    background: var(--panel);
+    border-left: 3px solid var(--ink);
+    padding: 20px 24px;
+    margin: 40px 0;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .callout strong { color: var(--ink); }
+  .callout code {
+    font-family: "IBM Plex Mono", monospace;
+    background: var(--hairline);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+
+  footer {
+    padding: 40px 0 80px;
+    color: var(--dust);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--hairline);
+    margin-top: 24px;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">A self-guided lab notebook &middot; runs in your browser</p>
+    <h1 class="display"><span class="line1">Species-level</span><span class="line2">resolution.</span></h1>
+    <p class="lede">
+      A twelve-module course on what a bacterial species actually is —
+      the ANI convention that defines one, real ongoing reclassification
+      work happening inside genera already covered on this site, and
+      exactly where species-level data stops being enough (a single
+      species, <em>E. coli</em>, contains both harmless commensals and
+      dangerous pathogens). Reuses the bioinformatics course's
+      already-species-level dataset throughout. Runs natively in-browser;
+      no local installation required.
+    </p>
+    <a class="cta" href="../app/notebooks/index.html?path=species-level-resolution/00_welcome.ipynb">
+      Start the course <span class="arrow">&rarr;</span>
+    </a>
+
+    <figure class="specimen">
+      <div class="fig-panel">
+        <div class="fig-label">Fig. 1 &mdash; Taxonomic resolution across this site's courses</div>
+        <div class="ladder">
+          <div class="rung done">
+            <div class="rung-label">Genus</div>
+            <span class="rung-tag">course 3</span>
+          </div>
+          <div class="ladder-arrow">&rarr;</div>
+          <div class="rung current">
+            <div class="rung-label">Species</div>
+            <span class="rung-tag">this course</span>
+          </div>
+          <div class="ladder-arrow">&rarr;</div>
+          <div class="rung future">
+            <div class="rung-label">Strain</div>
+            <span class="rung-tag">coming later</span>
+          </div>
+        </div>
+        <figcaption>Each step down needs a harder method to actually measure (16S &rarr; shotgun/MetaPhlAn3 &rarr; whole-genome ANI &rarr; strain typing) and resolves a real blind spot the step above couldn't see &mdash; and creates a new one exactly where the next step picks up.</figcaption>
+      </div>
+    </figure>
+  </header>
+
+  <section class="log">
+    <h2 class="section-title">Specimen log — course order</h2>
+
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/00_welcome.ipynb">
+      <span class="row-num">№ 00</span>
+      <span><span class="row-title">Welcome</span><div class="row-desc">How this course works, reusing the bioinformatics course's data</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/01_what_makes_a_species.ipynb">
+      <span class="row-num">№ 01</span>
+      <span><span class="row-title">What Makes a Species?</span><div class="row-desc">ANI, why 16S can't resolve this far, species as a convention</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/02_this_courses_data_at_species_resolution.ipynb">
+      <span class="row-num">№ 02</span>
+      <span><span class="row-title">This Course's Data, at Species Resolution</span><div class="row-desc">Re-examining familiar genera one level down</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/03_the_faecalibacterium_split.ipynb">
+      <span class="row-num">№ 03</span>
+      <span><span class="row-title">The <em>Faecalibacterium</em> Split</span><div class="row-desc">Real, ongoing taxonomic reclassification</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/04_bifidobacterium_species.ipynb">
+      <span class="row-num">№ 04</span>
+      <span><span class="row-title"><em>Bifidobacterium</em> Species</span><div class="row-desc">Infant- vs. adult-associated species</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/05_akkermansia_beyond_muciniphila.ipynb">
+      <span class="row-num">№ 05</span>
+      <span><span class="row-title"><em>Akkermansia</em> Beyond <em>muciniphila</em></span><div class="row-desc">The genus has more than one member</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/06_ecoli_and_the_pathotype_problem.ipynb">
+      <span class="row-num">№ 06</span>
+      <span><span class="row-title"><em>E. coli</em> and the Pathotype Problem</span><div class="row-desc">One species, wildly different outcomes — the bridge to strains</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/07_bacteroides_and_prevotella_species.ipynb">
+      <span class="row-num">№ 07</span>
+      <span><span class="row-title"><em>Bacteroides</em> &amp; <em>Prevotella</em> Species</span><div class="row-desc">No dataset here resolves this far — real research only</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/08_how_species_boundaries_are_measured.ipynb">
+      <span class="row-num">№ 08</span>
+      <span><span class="row-title">How Species Boundaries Are Measured</span><div class="row-desc">ANI, MLST, whole-genome vs. marker-gene methods</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/09_is_species_a_natural_category.ipynb">
+      <span class="row-num">№ 09</span>
+      <span><span class="row-title">Is "Species" a Natural Category?</span><div class="row-desc">Horizontal gene transfer and the contested species concept</div><span class="row-tag">conceptual</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/10_species_level_diversity_hands_on.ipynb">
+      <span class="row-num">№ 10</span>
+      <span><span class="row-title">Species-Level Diversity, Hands-On</span><div class="row-desc">Shannon &amp; Simpson, by hand, done correctly at this resolution</div><span class="row-tag">hands-on</span></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+    <a class="row" href="../app/notebooks/index.html?path=species-level-resolution/11_species_isnt_the_end_either.ipynb">
+      <span class="row-num">№ 11</span>
+      <span><span class="row-title">Species Isn't the End Either</span><div class="row-desc">Closing, and the hand-off to a future strains course</div></span>
+      <span class="row-arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <div class="callout">
+    <strong>Nothing to install.</strong> Every hands-on notebook here uses
+    only <code>pandas</code>, <code>numpy</code>, and <code>scipy</code>,
+    and reads <code>toy_species_abundance.csv</code> directly from the
+    bioinformatics course — no new datasets, no setup cells.
+  </div>
+
+  <footer>
+    Reuses data from <a href="../bioinformatics-of-gut-health/">Bioinformatics of Gut Health</a>.
+    Cross-references <a href="../bacteria-genus-overview/">Bacteria Genus Overview</a>
+    throughout. Built with <a href="https://jupyterlite.readthedocs.io/">JupyterLite</a>.
+  </footer>
+
+</div>
+</body>
+</html>
